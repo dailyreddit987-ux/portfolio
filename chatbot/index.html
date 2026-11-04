@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>Chatbot Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f2ec;
+      --surface: #fffdf8;
+      --surface-2: #e9eadf;
+      --ink: #17231c;
+      --muted: #58645c;
+      --line: #d4d8cc;
+      --green: #194f36;
+      --green-2: #236b49;
+      --green-soft: #dfeade;
+      --tomato: #d9573f;
+      --tomato-soft: #f5d8cf;
+      --shadow: 0 24px 70px rgba(17, 45, 30, .18);
+      --chat-shadow: 0 24px 70px rgba(9, 29, 18, .28);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111814;
+        --surface: #19221d;
+        --surface-2: #212d26;
+        --ink: #f0f2ea;
+        --muted: #b4bdb5;
+        --line: #344239;
+        --green: #8acba4;
+        --green-2: #73bb90;
+        --green-soft: #283d30;
+        --tomato: #f07b63;
+        --tomato-soft: #472c28;
+        --shadow: 0 24px 70px rgba(0, 0, 0, .26);
+        --chat-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Manrope, sans-serif;
+      line-height: 1.55;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .page { min-height: 100vh; overflow: hidden; }
+    .demo-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 20px;
+      background: var(--green);
+      color: var(--surface);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      .demo-ribbon { background: #0d3020; color: #e8f7ec; }
+    }
+    .hero {
+      width: min(1160px, calc(100% - 48px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.06fr .94fr;
+      gap: 58px;
+      align-items: center;
+      padding: 72px 0 54px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 22px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: var(--tomato);
+    }
+    h1 {
+      margin: 0;
+      max-width: 700px;
+      font-family: Newsreader, serif;
+      font-size: clamp(48px, 6vw, 78px);
+      line-height: .96;
+      letter-spacing: -.045em;
+      font-weight: 600;
+    }
+    h1 em { color: var(--green); font-style: italic; }
+    .hero-copy > p {
+      max-width: 620px;
+      margin: 24px 0 28px;
+      color: var(--muted);
+      font-size: clamp(16px, 1.5vw, 19px);
+    }
+    .cta-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .primary, .secondary {
+      min-height: 48px;
+      border-radius: 9px;
+      padding: 0 20px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .primary { background: var(--green); color: var(--surface); }
+    .primary:hover { background: var(--green-2); }
+    .secondary { background: transparent; border-color: var(--line); }
+    .secondary:hover { border-color: var(--green); }
+    .restaurant-card {
+      position: relative;
+      min-height: 510px;
+    }
+    .restaurant-card img {
+      width: 100%;
+      height: 440px;
+      object-fit: cover;
+      display: block;
+      border-radius: 42px 42px 10px 42px;
+      filter: saturate(.92) contrast(1.03);
+      box-shadow: var(--shadow);
+    }
+    .info-slip {
+      position: absolute;
+      right: -18px;
+      bottom: 2px;
+      width: min(360px, 88%);
+      padding: 21px 22px;
+      border-radius: 8px 8px 24px 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }
+    .info-slip strong { display: block; margin-bottom: 7px; font-family: Newsreader, serif; font-size: 24px; }
+    .info-slip span { color: var(--muted); font-size: 14px; }
+    .capabilities {
+      width: min(1160px, calc(100% - 48px));
+      margin: 6px auto 96px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .capability {
+      padding: 28px 28px 30px 0;
+      min-height: 150px;
+    }
+    .capability + .capability { padding-left: 28px; border-left: 1px solid var(--line); }
+    .capability-num { color: var(--tomato); font: 600 15px Newsreader, serif; }
+    .capability h2 { margin: 15px 0 7px; font: 600 25px/1.05 Newsreader, serif; }
+    .capability p { margin: 0; color: var(--muted); font-size: 14px; }
+    .proof {
+      background: var(--green);
+      color: #f7f7ef;
+      padding: 70px 24px 130px;
+    }
+    .proof-inner { width: min(920px, 100%); margin: 0 auto; text-align: center; }
+    .proof h2 { margin: 0 auto 17px; max-width: 780px; font: 600 clamp(34px, 5vw, 58px)/1 Newsreader, serif; letter-spacing: -.025em; }
+    .proof p { max-width: 660px; margin: 0 auto; color: #cfe0d4; }
+    .topics {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .topic { padding: 9px 13px; border: 1px solid rgba(255,255,255,.24); border-radius: 999px; font-size: 13px; }
+
+    .launcher {
+      position: fixed;
+      z-index: 20;
+      right: max(22px, env(safe-area-inset-right));
+      bottom: max(22px, env(safe-area-inset-bottom));
+      width: 62px;
+      height: 62px;
+      border: 0;
+      border-radius: 50%;
+      display: none;
+      place-items: center;
+      background: var(--tomato);
+      color: white;
+      box-shadow: var(--chat-shadow);
+      cursor: pointer;
+    }
+    .launcher svg { width: 28px; height: 28px; }
+    .launcher .pulse {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #69d98f;
+      border: 2px solid white;
+    }
+    .chat {
+      position: fixed;
+      z-index: 30;
+      right: max(24px, env(safe-area-inset-right));
+      bottom: max(24px, env(safe-area-inset-bottom));
+      width: min(390px, calc(100vw - 32px));
+      height: min(660px, calc(100vh - 60px));
+      min-height: 480px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px 18px 8px 18px;
+      background: var(--surface);
+      box-shadow: var(--chat-shadow);
+      transform-origin: bottom right;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .chat.is-closed { opacity: 0; transform: translateY(18px) scale(.96); pointer-events: none; }
+    .chat-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 17px 16px;
+      background: var(--green);
+      color: #f8fff9;
+    }
+    .bot-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px 13px 5px 13px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .bot-mark svg { width: 24px; height: 24px; }
+    .chat-title { flex: 1; min-width: 0; }
+    .chat-title strong { display: block; font-size: 15px; }
+    .chat-title span { display: flex; align-items: center; gap: 6px; color: #d9eadf; font-size: 12px; }
+    .chat-title span::before { content:""; width: 7px; height: 7px; border-radius: 50%; background: #68db8d; }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.12); }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .messages {
+      overflow-y: auto;
+      padding: 18px 16px 10px;
+      overscroll-behavior: contain;
+      scrollbar-color: var(--line) transparent;
+    }
+    .message { display: flex; margin: 0 0 13px; }
+    .message.user { justify-content: flex-end; }
+    .bubble {
+      max-width: 84%;
+      padding: 11px 13px;
+      border-radius: 5px 14px 14px 14px;
+      background: var(--surface-2);
+      color: var(--ink);
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .user .bubble { border-radius: 14px 5px 14px 14px; background: var(--green); color: #fff; }
+    @media (prefers-color-scheme: dark) { .user .bubble { color: #132219; background: var(--green); } }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 4px 0 16px; }
+    .quick {
+      min-height: 40px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      text-align: left;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.25;
+      cursor: pointer;
+    }
+    .quick:hover { background: var(--green-soft); border-color: var(--green); }
+    .typing { display: inline-flex; gap: 4px; align-items: center; height: 14px; }
+    .typing i { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: blink 1s infinite alternate; }
+    .typing i:nth-child(2) { animation-delay: .2s; }
+    .typing i:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { to { opacity: .25; transform: translateY(-2px); } }
+    .composer { padding: 11px 12px 12px; border-top: 1px solid var(--line); background: var(--surface); }
+    .composer form { display: grid; grid-template-columns: 1fr 42px; gap: 8px; }
+    .composer input {
+      min-width: 0;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: var(--bg);
+      color: var(--ink);
+      outline: none;
+    }
+    .composer input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+    .send {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 8px 8px 3px 8px;
+      display: grid;
+      place-items: center;
+      background: var(--tomato);
+      color: white;
+      cursor: pointer;
+    }
+    .send:hover { filter: brightness(.95); }
+    .send svg { width: 19px; height: 19px; }
+    .composer-note { margin-top: 7px; color: var(--muted); font-size: 10px; text-align: center; }
+    .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 54px; }
+      .restaurant-card { min-height: 420px; }
+      .restaurant-card img { height: 370px; }
+      .info-slip { right: 12px; }
+      .capabilities { grid-template-columns: 1fr; }
+      .capability { padding: 24px 0; }
+      .capability + .capability { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 620px) {
+      .hero, .capabilities { width: min(100% - 32px, 1160px); }
+      .hero { padding: 42px 0 38px; }
+      h1 { font-size: clamp(43px, 14vw, 63px); }
+      .hero-copy > p { font-size: 16px; }
+      .restaurant-card { min-height: 335px; }
+      .restaurant-card img { height: 290px; border-radius: 28px 28px 8px 28px; }
+      .info-slip { padding: 16px; right: -3px; bottom: 0; }
+      .info-slip strong { font-size: 20px; }
+      .capabilities { margin-bottom: 64px; }
+      .proof { padding: 54px 20px 110px; }
+      .chat {
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+        width: calc(100vw - 20px);
+        height: min(680px, calc(100dvh - 20px));
+        min-height: 0;
+      }
+      .chat.is-closed { display: none; }
+      .launcher { display: grid; }
+      .quick-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="demo-ribbon">Interactive portfolio sample · fictional restaurant</div>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow">Marlow &amp; Finch assistant</div>
+        <h1 id="hero-title">Every guest gets an <em>answer.</em></h1>
+        <p>A working customer-support chatbot for a neighborhood restaurant. Ask a real question and see how it handles the details guests care about most.</p>
+        <div class="cta-row">
+          <button class="primary" type="button" id="tryChat">Try the live chat</button>
+          <button class="secondary" type="button" id="askMenu">Ask about the menu</button>
+        </div>
+      </div>
+      <div class="restaurant-card">
+        <img src="assets/restaurant-interior.webp" alt="Warm, plant-filled restaurant dining room with prepared tables" />
+        <div class="info-slip">
+          <strong>Sunday service</strong>
+          <span>Brunch 10am–3pm · Dinner 5–9pm<br>Fictional address: 128 Spice Lane, Austin</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="capabilities" aria-label="Chatbot capabilities">
+      <article class="capability"><span class="capability-num">01</span><h2>Answers instantly</h2><p>Hours, menus, prices and dietary questions—without making guests hunt.</p></article>
+      <article class="capability"><span class="capability-num">02</span><h2>Guides the next step</h2><p>Clear information for reservations, takeaway, delivery, parking and contact.</p></article>
+      <article class="capability"><span class="capability-num">03</span><h2>Sounds human</h2><p>Friendly, concise replies with useful follow-up suggestions in every conversation.</p></article>
+    </section>
+
+    <section class="proof">
+      <div class="proof-inner">
+        <h2>Six common questions. One calm, consistent voice.</h2>
+        <p>The assistant uses an embedded business knowledge base, so it works right here—try asking in your own words.</p>
+        <div class="topics" aria-label="Supported topics">
+          <span class="topic">Opening hours</span><span class="topic">Menu &amp; prices</span><span class="topic">Reservations</span><span class="topic">Location &amp; parking</span><span class="topic">Delivery &amp; takeaway</span><span class="topic">Contact</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="launcher" id="launcher" type="button" aria-label="Open restaurant assistant">
+    <span class="pulse" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>
+  </button>
+
+  <aside class="chat" id="chat" aria-label="Marlow and Finch restaurant assistant">
+    <header class="chat-head">
+      <div class="bot-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8h10a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4h-4l-4 3v-3H7a4 4 0 0 1-4-4v-1a4 4 0 0 1 4-4z"/><path d="M9 12h.01M15 12h.01"/><path d="M12 8V5m-2 0h4"/></svg></div>
+      <div class="chat-title"><strong>Marlow Assistant</strong><span>Online · replies instantly</span></div>
+      <button class="icon-btn" id="resetChat" type="button" aria-label="Restart conversation" title="Restart conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <button class="icon-btn" id="closeChat" type="button" aria-label="Minimize chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg></button>
+    </header>
+    <div class="messages" id="messages" role="log" aria-live="polite"></div>
+    <div class="composer">
+      <form id="chatForm">
+        <label class="sr-only" for="chatInput">Ask the restaurant assistant a question</label>
+        <input id="chatInput" autocomplete="off" maxlength="180" placeholder="Ask a question…" />
+        <button class="send" type="submit" aria-label="Send question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></button>
+      </form>
+      <div class="composer-note">Demo replies use a built-in restaurant knowledge base.</div>
+    </div>
+  </aside>
+</div>
+<script>
+(function () {
+  var chat = document.getElementById('chat');
+  var launcher = document.getElementById('launcher');
+  var messages = document.getElementById('messages');
+  var form = document.getElementById('chatForm');
+  var input = document.getElementById('chatInput');
+  var closeChat = document.getElementById('closeChat');
+  var resetChat = document.getElementById('resetChat');
+  var tryChat = document.getElementById('tryChat');
+  var askMenu = document.getElementById('askMenu');
+  var busy = false;
+
+  var quicks = [
+    ['Hours today', 'What are your opening hours?'],
+    ['Menu & prices', 'What is on the menu and how much is it?'],
+    ['Reserve a table', 'How can I reserve a table?'],
+    ['Location & parking', 'Where are you and is there parking?'],
+    ['Delivery & takeaway', 'Do you offer delivery or takeaway?'],
+    ['Contact details', 'How can I contact you?']
+  ];
+
+  function addMessage(text, who) {
+    var wrap = document.createElement('div');
+    wrap.className = 'message ' + who;
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+    return wrap;
+  }
+
+  function addQuickButtons(items) {
+    var old = messages.querySelectorAll('.quick-grid');
+    for (var i = 0; i < old.length; i++) old[i].remove();
+    var grid = document.createElement('div');
+    grid.className = 'quick-grid';
+    items.forEach(function (item) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'quick';
+      button.textContent = item[0];
+      button.addEventListener('click', function () { sendQuestion(item[1]); });
+      grid.appendChild(button);
+    });
+    messages.appendChild(grid);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function categoryFor(raw) {
+    var q = raw.toLowerCase();
+    if (/hour|open|close|time|today|sunday|monday|tuesday|wednesday|thursday|friday|saturday/.test(q)) return 'hours';
+    if (/menu|price|cost|food|dish|eat|vegetarian|vegan|gluten|allerg|starter|main|dessert|burger|chicken|salmon/.test(q)) return 'menu';
+    if (/reserv|book|table|party|group|seat/.test(q)) return 'reserve';
+    if (/where|location|address|park|direction|find you/.test(q)) return 'location';
+    if (/deliver|takeaway|takeout|pickup|pick up|order/.test(q)) return 'delivery';
+    if (/contact|phone|email|call|number|reach/.test(q)) return 'contact';
+    if (/hello|hi|hey|good morning|good evening/.test(q)) return 'hello';
+    if (/thank/.test(q)) return 'thanks';
+    return 'fallback';
+  }
+
+  function answerFor(category) {
+    var answers = {
+      hours: 'We’re open Monday–Thursday 11am–9:30pm, Friday 11am–11pm, Saturday 10am–11pm, and Sunday 10am–9pm. Brunch is served Saturday and Sunday from 10am–3pm.',
+      menu: 'Here are a few favorites:\n• Crispy cauliflower — $9\n• Garden rigatoni — $18\n• House burger — $19\n• Herb-roasted chicken — $24\n• Cedar salmon — $26\n• Citrus olive-oil cake — $9\n\nVegetarian and gluten-aware options are available. Please tell the team about any allergy before ordering.',
+      reserve: 'Tables can be reserved up to 30 days ahead for parties of 1–6. For larger groups, the restaurant would handle the request directly. This is a portfolio demo, so no real booking is placed here—but a client version can connect to their booking system.',
+      location: 'The demo restaurant is at 128 Spice Lane, Austin, TX 78701. Free parking is available in the rear lot after 5pm, with metered street parking nearby. This is a fictional address used for the sample.',
+      delivery: 'Takeaway is available during all opening hours and is usually ready in 20–30 minutes. The sample policy offers delivery within 3 miles, with a $25 minimum and a $4 fee. A live client version can connect directly to online ordering.',
+      contact: 'For this fictional demo, the listed contact is (512) 555-0148 and hello@marlowandfinch.example. A real deployment would use the client’s verified phone, inbox and booking links.',
+      hello: 'Hello! I’m the Marlow & Finch restaurant assistant. I can help with hours, menu prices, reservations, location, parking, delivery, takeaway or contact details.',
+      thanks: 'You’re very welcome. Is there anything else you’d like to know before your visit?',
+      fallback: 'I’m best at restaurant questions. Try asking about opening hours, menu prices, reservations, location and parking, delivery or contact details.'
+    };
+    return answers[category];
+  }
+
+  function suggestions(category) {
+    var map = {
+      hours: [['See the menu', 'What is on the menu and how much is it?'], ['Reserve a table', 'How can I reserve a table?']],
+      menu: [['Opening hours', 'What are your opening hours?'], ['Delivery options', 'Do you offer delivery or takeaway?']],
+      reserve: [['Opening hours', 'What are your opening hours?'], ['Find the restaurant', 'Where are you and is there parking?']],
+      location: [['Reserve a table', 'How can I reserve a table?'], ['Contact details', 'How can I contact you?']],
+      delivery: [['See the menu', 'What is on the menu and how much is it?'], ['Contact details', 'How can I contact you?']],
+      contact: [['Opening hours', 'What are your opening hours?'], ['Location & parking', 'Where are you and is there parking?']],
+      hello: quicks,
+      thanks: quicks.slice(0, 4),
+      fallback: quicks
+    };
+    return map[category];
+  }
+
+  function sendQuestion(text) {
+    if (busy || !text || !text.trim()) return;
+    busy = true;
+    var clean = text.trim();
+    addMessage(clean, 'user');
+    input.value = '';
+    var typing = addMessage('', 'bot');
+    typing.querySelector('.bubble').innerHTML = '<span class="typing" aria-label="Assistant is typing"><i></i><i></i><i></i></span>';
+    messages.scrollTop = messages.scrollHeight;
+    window.setTimeout(function () {
+      typing.remove();
+      var category = categoryFor(clean);
+      addMessage(answerFor(category), 'bot');
+      addQuickButtons(suggestions(category));
+      busy = false;
+      input.focus();
+    }, 520);
+  }
+
+  function openWidget(focus) {
+    chat.classList.remove('is-closed');
+    launcher.style.display = 'none';
+    if (focus) window.setTimeout(function () { input.focus(); }, 180);
+  }
+
+  function closeWidget() {
+    chat.classList.add('is-closed');
+    if (window.innerWidth <= 620) launcher.style.display = 'grid';
+    else launcher.style.display = 'grid';
+  }
+
+  function welcome() {
+    messages.innerHTML = '';
+    addMessage('Hi! Welcome to Marlow & Finch. I can help with today’s hours, menu prices, reservations, directions, delivery and more. What would you like to know?', 'bot');
+    addQuickButtons(quicks);
+  }
+
+  form.addEventListener('submit', function (e) { e.preventDefault(); sendQuestion(input.value); });
+  closeChat.addEventListener('click', closeWidget);
+  launcher.addEventListener('click', function () { openWidget(true); });
+  resetChat.addEventListener('click', welcome);
+  tryChat.addEventListener('click', function () { openWidget(true); });
+  askMenu.addEventListener('click', function () { openWidget(false); sendQuestion('What is on the menu and how much is it?'); });
+  window.addEventListener('resize', function () {
+    if (!chat.classList.contains('is-closed')) launcher.style.display = 'none';
+  });
+  welcome();
+  if (window.innerWidth <= 620) closeWidget();
+}());
+</script>
+</body>
+</html>
